@@ -1,0 +1,272 @@
+     1                                  ;
+     2                                  ;       Objective: encrypt a string changing only numeric digits
+     3                                  ;       Input: Request a string from the user.
+     4                                  ;       Output: Display the encrypted string.
+     5                                  %include "io.mac"
+     1                              <1> extern   proc_nwln, proc_PutCh, proc_PutStr
+     2                              <1> extern   proc_GetStr, proc_GetCh
+     3                              <1> extern   proc_PutInt, proc_GetInt
+     4                              <1> extern   proc_PutLInt, proc_GetLInt
+     5                              <1> 
+     6                              <1> ;;-------------------------------------------------------------------
+     7                              <1> %macro  .STARTUP  0
+     8                              <1> ;group dgroup .data .bss
+     9                              <1>         global   _start
+    10                              <1> _start:
+    11                              <1> %endmacro
+    12                              <1> ;;-------------------------------------------------------------------
+    13                              <1> 
+    14                              <1> 
+    15                              <1> ;;-------------------------------------------------------------------
+    16                              <1> %macro  .EXIT  0
+    17                              <1>         mov    EAX,1
+    18                              <1>         xor    EBX,EBX
+    19                              <1>         int    0x80
+    20                              <1> %endmacro
+    21                              <1> ;;-------------------------------------------------------------------
+    22                              <1> 
+    23                              <1> 
+    24                              <1> ;;-------------------------------------------------------------------
+    25                              <1> %macro  .DATA 0
+    26                              <1>         segment .data
+    27                              <1> %endmacro
+    28                              <1> ;;-------------------------------------------------------------------
+    29                              <1> 
+    30                              <1> ;;-------------------------------------------------------------------
+    31                              <1> %macro  .UDATA 0
+    32                              <1>         segment .bss
+    33                              <1> %endmacro
+    34                              <1> ;;-------------------------------------------------------------------
+    35                              <1> 
+    36                              <1> ;;-------------------------------------------------------------------
+    37                              <1> %macro  .CODE 0
+    38                              <1>         segment .data
+    39                              <1>         segment .bss
+    40                              <1>         segment .text
+    41                              <1> %endmacro
+    42                              <1> ;;-------------------------------------------------------------------
+    43                              <1> 
+    44                              <1> 
+    45                              <1> ;;-------------------------------------------------------------------
+    46                              <1> %macro  nwln  0 
+    47                              <1>         call    proc_nwln
+    48                              <1> %endmacro
+    49                              <1> ;;-------------------------------------------------------------------
+    50                              <1> 
+    51                              <1> 
+    52                              <1> ;;-------------------------------------------------------------------
+    53                              <1> %macro  PutCh  1 
+    54                              <1>         push    AX
+    55                              <1>         mov     AL,%1
+    56                              <1>         call    proc_PutCh
+    57                              <1>         pop     AX
+    58                              <1> %endmacro
+    59                              <1> ;;-------------------------------------------------------------------
+    60                              <1> 
+    61                              <1> 
+    62                              <1> ;;-------------------------------------------------------------------
+    63                              <1> %macro  PutStr  1 
+    64                              <1>         push    ECX
+    65                              <1>         mov     ECX,%1
+    66                              <1>         call    proc_PutStr
+    67                              <1>         pop     ECX
+    68                              <1> %endmacro
+    69                              <1> ;;-------------------------------------------------------------------
+    70                              <1> 
+    71                              <1> 
+    72                              <1> ;;-------------------------------------------------------------------
+    73                              <1> %macro  GetStr  1-2 81
+    74                              <1>         push    ESI
+    75                              <1>         push    EDI
+    76                              <1>         mov     EDI,%1
+    77                              <1>         mov     ESI,%2
+    78                              <1>         call    proc_GetStr
+    79                              <1>         pop     EDI
+    80                              <1>         pop     ESI
+    81                              <1> %endmacro
+    82                              <1> ;;-------------------------------------------------------------------
+    83                              <1> 
+    84                              <1> 
+    85                              <1> ;;-------------------------------------------------------------------
+    86                              <1> %macro  GetCh   1
+    87                              <1>         push    SI
+    88                              <1>         xor     SI,SI
+    89                              <1> %ifidni %1,AL
+    90                              <1>         ;inc     SI
+    91                              <1>         call    proc_GetCh
+    92                              <1> %elifidni %1,AH
+    93                              <1>         mov     SI,1
+    94                              <1>         call    proc_GetCh
+    95                              <1> %else
+    96                              <1>         push    AX
+    97                              <1>         call    proc_GetCh
+    98                              <1>         mov     %1,AL
+    99                              <1>         pop     AX
+   100                              <1> %endif
+   101                              <1>         pop     SI
+   102                              <1> %endmacro
+   103                              <1> ;;-------------------------------------------------------------------
+   104                              <1> 
+   105                              <1> 
+   106                              <1> ;;-------------------------------------------------------------------
+   107                              <1> %macro  PutInt  1
+   108                              <1>         push    AX
+   109                              <1>         mov     AX,%1
+   110                              <1>         call    proc_PutInt
+   111                              <1>         pop     AX
+   112                              <1> %endmacro
+   113                              <1> ;;-------------------------------------------------------------------
+   114                              <1> 
+   115                              <1> 
+   116                              <1> ;;-------------------------------------------------------------------
+   117                              <1> %macro  GetInt  1
+   118                              <1> %ifnidni %1,AX
+   119                              <1>         push    AX
+   120                              <1>         call    proc_GetInt
+   121                              <1>         mov     %1,AX
+   122                              <1> 	  pop     AX
+   123                              <1> %else 
+   124                              <1>         call  proc_GetInt
+   125                              <1> %endif
+   126                              <1> %endmacro
+   127                              <1> ;;-------------------------------------------------------------------
+   128                              <1> 
+   129                              <1> ;;-------------------------------------------------------------------
+   130                              <1> %macro  PutLInt  1
+   131                              <1>         push    EAX
+   132                              <1>         mov     EAX,%1
+   133                              <1>         call    proc_PutLInt
+   134                              <1>         pop     EAX
+   135                              <1> %endmacro
+   136                              <1> ;;-------------------------------------------------------------------
+   137                              <1> 
+   138                              <1> ;;-------------------------------------------------------------------
+   139                              <1> %macro  GetLInt  1
+   140                              <1> %ifnidni %1,EAX
+   141                              <1>         push    EAX
+   142                              <1>         call    proc_GetLInt
+   143                              <1>         mov     %1,EAX
+   144                              <1> 	  pop     EAX
+   145                              <1> %else 
+   146                              <1>         call  proc_GetLInt
+   147                              <1> %endif
+   148                              <1> %endmacro
+   149                              <1> ;;-------------------------------------------------------------------
+   150                              <1> 
+     6                                  
+     7                                  .DATA
+     7                              <1>  segment .data
+     8 00000000 506C6561736520696E-     prompt_msg1   db    "Please input the string (< 16 characters) : ", 0
+     8 00000009 707574207468652073-
+     8 00000012 7472696E6720283C20-
+     8 0000001B 313620636861726163-
+     8 00000024 7465727329203A2000 
+     9 0000002D 446F20796F75207761-     prompt_msg2   db    "Do you want to terminate program (y/Y) : ", 0
+     9 00000036 6E7420746F20746572-
+     9 0000003F 6D696E617465207072-
+     9 00000048 6F6772616D2028792F-
+     9 00000051 5929203A2000       
+    10 00000057 456E63727970746564-     out_msg       db    "Encrypted string : ", 0
+    10 00000060 20737472696E67203A-
+    10 00000069 2000               
+    11                                  
+    12                                  .UDATA
+    12                              <1>  segment .bss
+    13 00000000 <res 00000010>          in_str        resb   16
+    14 00000010 <res 00000001>          in_ch         resb   1
+    15                                  
+    16                                  .CODE
+    16                              <1>  segment .data
+    16                              <1>  segment .bss
+    16                              <1>  segment .text
+    17                                  start:
+    18                                        .STARTUP
+    18                              <1> 
+    18                              <1>  global _start
+    18                              <1> _start:
+    19                                        PutStr  prompt_msg1           ; request input string
+    19 00000000 51                  <1>  push ECX
+    19 00000001 B9[00000000]        <1>  mov ECX,%1
+    19 00000006 E8(00000000)        <1>  call proc_PutStr
+    19 0000000B 59                  <1>  pop ECX
+    20                                        GetStr  in_str,16             ; read input string
+    20 0000000C 56                  <1>  push ESI
+    20 0000000D 57                  <1>  push EDI
+    20 0000000E BF[00000000]        <1>  mov EDI,%1
+    20 00000013 BE10000000          <1>  mov ESI,%2
+    20 00000018 E8(00000000)        <1>  call proc_GetStr
+    20 0000001D 5F                  <1>  pop EDI
+    20 0000001E 5E                  <1>  pop ESI
+    21                                  
+    22                                        PutStr  out_msg
+    22 0000001F 51                  <1>  push ECX
+    22 00000020 B9[57000000]        <1>  mov ECX,%1
+    22 00000025 E8(00000000)        <1>  call proc_PutStr
+    22 0000002A 59                  <1>  pop ECX
+    23 0000002B BB[00000000]                  mov     EBX,in_str            ; EBX = pointer to in_str
+    24                                  
+    25                                  encryption:
+    26 00000030 803B00                        cmp     BYTE  [EBX],0         ; if it is the null character
+    27 00000033 742B                          je      terminate             ; request another string from user
+    28 00000035 803B30                        cmp     BYTE  [EBX],'0'       ; if (char < '0')
+    29 00000038 7C23                          jl      not_numeric           ; not a numeric character
+    30 0000003A 803B39                        cmp     BYTE  [EBX],'9'       ; if (char > '9')
+    31 0000003D 7F1E                          jg      not_numeric           ; not a numeric character
+    32 0000003F 803B39                        cmp     BYTE  [EBX],'9'       ; if (char == '9')
+    33 00000042 740A                          je      enc_9                 ; convert 9 to 0
+    34 00000044 803B33                        cmp     BYTE  [EBX],'3'       ; if (char >= '0' && char < '3')
+    35 00000047 7C0A                          jl      enc_0to2
+    36 00000049 803B39                        cmp     BYTE  [EBX],'9'       ; if (char > 2 && char < 9)
+    37 0000004C 7C0A                          jl      enc_3to8
+    38                                  enc_9:
+    39 0000004E 802B09                        sub     BYTE  [EBX],9         ; convert 9 to 0
+    40 00000051 EB0A                          jmp     not_numeric
+    41                                  enc_0to2:
+    42 00000053 800328                        add     BYTE  [EBX],'X'-'0'   ; convert 0 - X, 1 - Y, 2 - Z
+    43 00000056 EB05                          jmp     not_numeric
+    44                                  enc_3to8:
+    45 00000058 80030E                        add     BYTE  [EBX],'A'-'3'   ; convert 3 - A, ... , 8 - F
+    46 0000005B EB00                          jmp     not_numeric
+    47                                  not_numeric:
+    48 0000005D 43                            inc     EBX                   ; point EBX to next char in string
+    49 0000005E EBD0                          jmp     encryption            ; go back to encryption
+    50                                  terminate:
+    51                                        PutStr  in_str                ; output the encrypted string
+    51 00000060 51                  <1>  push ECX
+    51 00000061 B9[00000000]        <1>  mov ECX,%1
+    51 00000066 E8(00000000)        <1>  call proc_PutStr
+    51 0000006B 59                  <1>  pop ECX
+    52                                      nwln
+    52 0000006C E8(00000000)        <1>  call proc_nwln
+    53                                        PutStr  prompt_msg2           ; request another string
+    53 00000071 51                  <1>  push ECX
+    53 00000072 B9[2D000000]        <1>  mov ECX,%1
+    53 00000077 E8(00000000)        <1>  call proc_PutStr
+    53 0000007C 59                  <1>  pop ECX
+    54                                        GetCh   [in_ch]               ; get input from user to terminate the program
+    54 0000007D 6656                <1>  push SI
+    54 0000007F 6631F6              <1>  xor SI,SI
+    54                              <1> %ifidni %1,AL
+    54                              <1> 
+    54                              <1>  call proc_GetCh
+    54                              <1> %elifidni %1,AH
+    54                              <1>  mov SI,1
+    54                              <1>  call proc_GetCh
+    54                              <1> %else
+    54 00000082 6650                <1>  push AX
+    54 00000084 E8(00000000)        <1>  call proc_GetCh
+    54 00000089 A2[10000000]        <1>  mov %1,AL
+    54 0000008E 6658                <1>  pop AX
+    54                              <1> %endif
+    54 00000090 665E                <1>  pop SI
+    55                                        ; mov     AX,[in_ch]            ; move in_ch to AX
+    56 00000092 803D[10000000]79              cmp     BYTE  [in_ch],'y'           ; if (char == 'y')
+    57 00000099 740E                          je      done                  ; exit the program
+    58 0000009B 803D[10000000]59              cmp     BYTE  [in_ch],'Y'                ; if (char == 'Y')
+    59 000000A2 7405                          je      done                  ; exit the program
+    60 000000A4 E957FFFFFF                    jmp     start                 ; jump to start of the program
+    61                                  done:
+    62                                        .EXIT
+    62 000000A9 B801000000          <1>  mov EAX,1
+    62 000000AE 31DB                <1>  xor EBX,EBX
+    62 000000B0 CD80                <1>  int 0x80
